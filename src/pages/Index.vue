@@ -39,6 +39,7 @@
           <q-icon name="person" />
         </template>
       </q-input>
+
       <q-input
         class="col-md-12 col-sm-12 col-xs-12"
         label="Email"
@@ -53,6 +54,7 @@
           <q-icon name="email" />
         </template>
       </q-input>
+
       <q-input
         class="col-md-12 col-sm-12 col-xs-12"
         label="Telefone"
@@ -67,6 +69,45 @@
           <q-icon name="phone" />
         </template>
       </q-input>
+
+      <q-select
+        outlined
+        v-model="form.tipoPessoa"
+        :options="optionsPessoa"
+        ref="tipoPessoaRef"
+        label="Tipo de Pessoa"
+        :rules="tipoPessoaRules"
+        class="col-md-12 col-sm-12 col-xs-12"
+        emit-value
+        map-options
+      />
+
+      <span class="text-bold">Sexo:</span>
+      <q-option-group
+        :options="optionsSexo"
+        label="Sexo"
+        type="radio"
+        v-model="form.sexo"
+        class="col-md-12 col-sm-12 col-xs-12"
+      />
+
+    <span class="text-bold">Possui alguma dificuldade? </span>
+      <q-option-group
+        :options="optionsDificuldades"
+        label="Dificuldades"
+        type="checkbox"
+        v-model="form.dificuldades"
+        class="col-md-12 col-sm-12 col-xs-12"
+      />
+
+      <q-toggle
+        v-model="form.notificacoes"
+        color="primary"
+        icon="mail"
+        label="Receber notificações?"
+        size="lg"
+      />
+
       <div class="col-12">
         <q-btn
           class="float-left"
@@ -83,10 +124,12 @@
         ></q-btn>
       </div>
     </form>
+
     <p>{{ form.nome }}</p>
     <p>{{ form.idade }}</p>
     <p>{{ form.email }}</p>
     <p>{{ form.phone }}</p>
+    <p>{{ form.tipoPessoa }}</p>
   </q-page>
 </template>
 
@@ -98,47 +141,37 @@ export default defineComponent({
   name: 'PageIndex',
   setup () {
     const $q = useQuasar()
-
-    const accept = ref(false)
-
-    const nome = ref(null)
     const nomeRef = ref(null)
-
-    const idade = ref(null)
     const idadeRef = ref(null)
-
-    const email = ref(null)
     const emailRef = ref(null)
-
-    const telefone = ref(null)
     const telefoneRef = ref(null)
+    const tipoPessoaRef = ref(null)
 
     return {
-      nome,
       nomeRef,
       nomeRules: [
         val => !!val || 'Campo obrigatório',
         val => val.length > 5 || 'Nome invalido'
       ],
-      idade,
       idadeRef,
       idadeRules: [
         val => !!val || 'Campo obrigatório',
         val => (val > 0 && val < 100) || 'Idade Invalida'
       ],
-      email,
       emailRef,
       emailRules: [
         val => !!val || 'Campo obrigatório',
         val => /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(val) || 'Email invalido'
       ],
-      telefone,
       telefoneRef,
       telefoneRules: [
         val => !!val || 'Campo obrigatório',
         val => (val.length >= 10 && val.length <= 11) || 'Numero telefone invalido'
       ],
-      accept,
+      tipoPessoaRef,
+      tipoPessoaRules: [
+        val => !!val || 'Campo obrigatório'
+      ],
       onSubmit () {
         nomeRef.value.validate()
         idadeRef.value.validate()
@@ -146,7 +179,7 @@ export default defineComponent({
         telefoneRef.value.validate()
         // validate all fields
 
-        if (nomeRef.value.hasError || idadeRef.value.hasError || emailRef.value.hasError || telefoneRef.value.hasError) {
+        if (nomeRef.value.hasError || idadeRef.value.hasError || emailRef.value.hasError || telefoneRef.value.hasError || tipoPessoaRef.value.hasError) {
           $q.notify({
             message: 'Formulário não enviado',
             color: 'negative',
@@ -167,13 +200,18 @@ export default defineComponent({
         idadeRef.value.resetValidation()
         emailRef.value.resetValidation()
         telefoneRef.value.resetValidation()
+        tipoPessoaRef.value.resetValidation()
       },
       async resetForm () {
         this.form = {
           nome: '',
           idade: null,
           email: '',
-          phone: ''
+          phone: '',
+          tipoPessoa: '',
+          sexo: 'NI',
+          dificuldades: [],
+          notificacoes: false
         }
       }
     }
@@ -184,8 +222,26 @@ export default defineComponent({
         nome: '',
         idade: null,
         email: '',
-        phone: ''
-      }
+        phone: '',
+        tipoPessoa: '',
+        sexo: 'NI',
+        dificuldades: [],
+        notificacoes: false
+      },
+      optionsPessoa: [
+        { label: 'Pessoa Fisica', value: 'PF' },
+        { label: 'Pessoa Juridica', value: 'PJ' }
+      ],
+      optionsSexo: [
+        { label: 'Masculino', value: 'M' },
+        { label: 'Feminino', value: 'F' },
+        { label: 'Não informado', value: 'NI' }
+      ],
+      optionsDificuldades: [
+        { label: 'Motoras', value: 'motoras' },
+        { label: 'Visuais', value: 'visuais' },
+        { label: 'Respiratórias', value: 'respiratorias' }
+      ]
     }
   }
 })
